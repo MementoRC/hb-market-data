@@ -51,3 +51,5 @@ typecheck = "mypy market_data"
 build = "hatchling build"
 quality = { depends-on = ["lint", "format-check"] }
 check = { depends-on = ["quality", "typecheck", "test"] }
+_git-add = "git add pyproject.toml pixi.toml tests/integration/__init__.py"
+_git-commit = "git commit -m 'chore: merge pixi.toml into pyproject.toml, add integration test dir'"
