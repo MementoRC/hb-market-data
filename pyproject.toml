@@ -9,8 +9,13 @@ description = "Live market data adapter for Hummingbot — implements MarketData
 requires-python = ">=3.10"
 license = {text = "Apache-2.0"}
 dependencies = [
-    "hb-strategy-framework>=0.1.0",
+    "pandas>=1.5",
 ]
+
+# hb-strategy-framework is a sibling package not yet on PyPI.
+# Consumers installing hb-market-data from PyPI should also install hb-strategy-framework
+# from source. The pixi workspace below handles local development.
+# TODO: add "hb-strategy-framework>=0.1.0" once it is published to PyPI.
 
 [project.optional-dependencies]
 dev = [
