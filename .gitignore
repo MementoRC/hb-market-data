@@ -18,3 +18,6 @@ pixi.lock
 .env
 .venv/
 logs/
+
+# Git worktrees (per submodule worktree workflow)
+.worktrees/
