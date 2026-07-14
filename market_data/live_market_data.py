@@ -38,7 +38,7 @@ class LiveMarketData:
         Delegates to ``MarketDataProvider.get_price_by_type`` with
         ``PriceType.MidPrice``.
         """
-        from hummingbot.core.data_type.common import PriceType  # type: ignore[import]
+        from market_data.hb_compat.common import PriceType
 
         return self._provider.get_price_by_type(  # type: ignore[no-any-return]
             self._connector_name, trading_pair, PriceType.MidPrice
