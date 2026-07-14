@@ -59,8 +59,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install --upgrade pip
-        pip install safety bandit
+        pip install --retries 5 --timeout 60 --upgrade pip
+        pip install --retries 5 --timeout 60 safety bandit
 
     - name: Run Safety check
       run: |
@@ -87,7 +87,7 @@ jobs:
       uses: actions/checkout@v7
 
     - name: Install detect-secrets
-      run: pip install detect-secrets
+      run: pip install --retries 5 --timeout 60 detect-secrets==1.5.0
 
     - name: Run secrets detection
       run: |
