@@ -74,13 +74,14 @@ py312 = { features = ["py312", "dev"], solve-group = "py312" }
 test = "pytest tests/"
 test-unit = "pytest tests/unit/"
 test-integration = "pytest tests/integration/"
+coverage = "pytest tests/ --cov=market_data --cov-report=term-missing"
 lint = "ruff check market_data tests"
 format = "ruff format market_data tests"
 format-check = "ruff format --check market_data tests"
 typecheck = "mypy market_data"
 build = "hatchling build"
 quality = { depends-on = ["lint", "format-check"] }
-check = { depends-on = ["quality", "typecheck", "test"] }
+check = { depends-on = ["quality", "typecheck", "coverage"] }
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
