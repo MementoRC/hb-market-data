@@ -10,7 +10,7 @@ permissions:
   contents: read
 jobs:
   security:
-    uses: Claire-s-Monster/ci-framework/.github/workflows/reusable-security.yml@25ad0a2c057acc40487d6811d485c69998a7f04f  # v2.9.8
+    uses: Claire-s-Monster/ci-framework/.github/workflows/reusable-security.yml@8fcfe680187b5cdd3ebaaf6bacf4dcc1a9194d3d  # v3.0.0
     permissions:
       contents: read
       actions: read
