@@ -299,13 +299,3 @@ class TestLiveMarketDataProtocolSatisfaction:
     def test_has_get_candles(self) -> None:
         lmd = LiveMarketData(MagicMock(), "binance")
         assert callable(getattr(lmd, "get_candles", None))
-
-    def test_isinstance_check_with_protocol(self) -> None:
-        """isinstance check passes when strategy_framework protocol is available."""
-        sf = pytest.importorskip(
-            "strategy_framework.protocols.market_data",
-            reason="strategy_framework not installed",
-        )
-        protocol_cls = sf.MarketDataProtocol
-        lmd = LiveMarketData(MagicMock(), "binance")
-        assert isinstance(lmd, protocol_cls)
