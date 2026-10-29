@@ -1,9 +1,8 @@
-"""Re-export of the hummingbot common data-type enums used by market_data.
+"""Re-export of the common data-type enums used by market_data.
 
-Isolating the hummingbot import here keeps the rest of market_data
-import-clean. See ADR 0001 Group A1.
+Sourced from hb-data-type-primitives (ADR 0001, L2 -> L0).
 """
 
-from hummingbot.core.data_type.common import PriceType
+from data_type_primitives.common import PriceType
 
 __all__ = ["PriceType"]

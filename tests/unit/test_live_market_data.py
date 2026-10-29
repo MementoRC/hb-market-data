@@ -1,151 +1,21 @@
 """Unit tests for LiveMarketData.
 
-All hummingbot and strategy-framework imports are mocked so tests run in the
-market-data pixi environment without requiring those packages to be installed.
+The shared primitives come from the real hb-data-type-primitives package;
+the hummingbot MarketDataProvider is replaced by a MagicMock.
 """
 
 from __future__ import annotations
 
-import sys
 import time
 from decimal import Decimal
-from types import ModuleType
 from typing import Any
 from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest
+from data_type_primitives.common import PriceType
 
-# ---------------------------------------------------------------------------
-# Build lightweight stub modules so that ``live_market_data`` can be imported
-# without hummingbot or hb-strategy-framework being installed.
-# ---------------------------------------------------------------------------
-
-
-def _make_primitives_stubs() -> None:
-    """Inject minimal strategy_framework primitive stubs into sys.modules."""
-    if "strategy_framework" in sys.modules:
-        return
-
-    # Top-level package
-    sf = ModuleType("strategy_framework")
-    sys.modules["strategy_framework"] = sf
-
-    primitives = ModuleType("strategy_framework.primitives")
-    sys.modules["strategy_framework.primitives"] = primitives
-    sf.primitives = primitives  # type: ignore[attr-defined]
-
-    # --- CandleData ---
-    class CandleData:  # noqa: D101
-        def __init__(
-            self,
-            *,
-            timestamp: int,
-            open: Decimal,
-            high: Decimal,
-            low: Decimal,
-            close: Decimal,
-            volume: Decimal,
-        ) -> None:
-            self.timestamp = timestamp
-            self.open = open
-            self.high = high
-            self.low = low
-            self.close = close
-            self.volume = volume
-
-        def __eq__(self, other: object) -> bool:
-            if not isinstance(other, CandleData):
-                return NotImplemented
-            return (
-                self.timestamp == other.timestamp
-                and self.open == other.open
-                and self.high == other.high
-                and self.low == other.low
-                and self.close == other.close
-                and self.volume == other.volume
-            )
-
-    candle_mod = ModuleType("strategy_framework.primitives.candle")
-    candle_mod.CandleData = CandleData  # type: ignore[attr-defined]
-    sys.modules["strategy_framework.primitives.candle"] = candle_mod
-
-    # --- OrderBookEntry / OrderBookSnapshot ---
-    class OrderBookEntry:  # noqa: D101
-        def __init__(self, *, price: Decimal, quantity: Decimal) -> None:
-            self.price = price
-            self.quantity = quantity
-
-        def __eq__(self, other: object) -> bool:
-            if not isinstance(other, OrderBookEntry):
-                return NotImplemented
-            return self.price == other.price and self.quantity == other.quantity
-
-    class OrderBookSnapshot:  # noqa: D101
-        def __init__(
-            self,
-            *,
-            timestamp: int,
-            bids: list[OrderBookEntry],
-            asks: list[OrderBookEntry],
-        ) -> None:
-            self.timestamp = timestamp
-            self.bids = bids
-            self.asks = asks
-
-        @property
-        def best_bid(self) -> Decimal:
-            if not self.bids:
-                raise ValueError("Empty bids")
-            return self.bids[0].price
-
-        @property
-        def best_ask(self) -> Decimal:
-            if not self.asks:
-                raise ValueError("Empty asks")
-            return self.asks[0].price
-
-        @property
-        def spread(self) -> Decimal:
-            return self.best_ask - self.best_bid
-
-    ob_mod = ModuleType("strategy_framework.primitives.order_book")
-    ob_mod.OrderBookEntry = OrderBookEntry  # type: ignore[attr-defined]
-    ob_mod.OrderBookSnapshot = OrderBookSnapshot  # type: ignore[attr-defined]
-    sys.modules["strategy_framework.primitives.order_book"] = ob_mod
-
-
-# Install stubs before importing the module under test.
-_make_primitives_stubs()
-
-
-def _make_hummingbot_stubs() -> None:
-    """Inject a minimal hummingbot.core.data_type.common stub."""
-    if "hummingbot" in sys.modules:
-        return
-
-    hb = ModuleType("hummingbot")
-    sys.modules["hummingbot"] = hb
-
-    core = ModuleType("hummingbot.core")
-    sys.modules["hummingbot.core"] = core
-
-    dt = ModuleType("hummingbot.core.data_type")
-    sys.modules["hummingbot.core.data_type"] = dt
-
-    class PriceType:  # noqa: D101
-        MidPrice = "MidPrice"
-
-    common = ModuleType("hummingbot.core.data_type.common")
-    common.PriceType = PriceType  # type: ignore[attr-defined]
-    sys.modules["hummingbot.core.data_type.common"] = common
-
-
-_make_hummingbot_stubs()
-
-
-# Now import the module under test.
-from market_data.live_market_data import LiveMarketData  # noqa: E402
+from market_data.live_market_data import LiveMarketData
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -192,7 +62,9 @@ class TestLiveMarketDataGetMidPrice:
 
         result = lmd.get_mid_price("BTC-USDT")
 
-        provider.get_price_by_type.assert_called_once_with("binance", "BTC-USDT", "MidPrice")
+        provider.get_price_by_type.assert_called_once_with(
+            "binance", "BTC-USDT", PriceType.MidPrice
+        )
         assert result == Decimal("50000.00")
 
     def test_returns_decimal(self) -> None:
@@ -427,13 +299,3 @@ class TestLiveMarketDataProtocolSatisfaction:
     def test_has_get_candles(self) -> None:
         lmd = LiveMarketData(MagicMock(), "binance")
         assert callable(getattr(lmd, "get_candles", None))
-
-    def test_isinstance_check_with_protocol(self) -> None:
-        """isinstance check passes when strategy_framework protocol is available."""
-        sf = pytest.importorskip(
-            "strategy_framework.protocols.market_data",
-            reason="strategy_framework not installed",
-        )
-        protocol_cls = sf.MarketDataProtocol
-        lmd = LiveMarketData(MagicMock(), "binance")
-        assert isinstance(lmd, protocol_cls)
