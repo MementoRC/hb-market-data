@@ -10,12 +10,11 @@ requires-python = ">=3.12"
 license = {text = "Apache-2.0"}
 dependencies = [
     "pandas>=1.5",
+    "hb-data-type-primitives>=0.3,<0.4",
 ]
 
-# hb-strategy-framework is a sibling package not yet on PyPI.
-# Consumers installing hb-market-data from PyPI should also install hb-strategy-framework
-# from source. The pixi workspace below handles local development.
-# TODO: add "hb-strategy-framework>=0.1.0" once it is published to PyPI.
+# market-data satisfies hb-strategy-framework's MarketDataProtocol structurally and does
+# not import it; the shared primitives come from hb-data-type-primitives (ADR 0001, L2 -> L0).
 
 [project.optional-dependencies]
 dev = [
@@ -41,6 +40,9 @@ platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"]
 python = ">=3.12,<3.13"
 pydantic = ">=2"
 pandas = ">=2"
+
+[tool.pixi.pypi-dependencies]
+hb-data-type-primitives = { git = "https://github.com/MementoRC/hb-data-type-primitives.git", tag = "v0.3.0" }
 
 [tool.pixi.feature.dev.dependencies]
 pytest = ">=9.0.3"
@@ -80,8 +82,8 @@ format = "ruff format market_data tests"
 format-check = "ruff format --check market_data tests"
 typecheck = "mypy market_data"
 build = "hatchling build"
-quality = { depends-on = ["lint", "format-check"] }
-check = { depends-on = ["quality", "typecheck", "coverage"] }
+quality = { depends-on = ["lint", "format-check", "typecheck"] }
+check = { depends-on = ["quality", "coverage"] }
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
@@ -103,8 +105,16 @@ line-length = 100
 [tool.ruff.lint]
 select = ["E", "F", "I", "W", "B", "UP", "N", "SIM", "TCH"]
 
+[tool.ruff.lint.isort]
+known-first-party = ["market_data"]
+
 [tool.ruff.format]
 quote-style = "double"
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_first_party = ["market_data"]
 
 [tool.mypy]
 python_version = "3.12"

@@ -7,8 +7,8 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from strategy_framework.primitives.candle import CandleData
-    from strategy_framework.primitives.order_book import OrderBookSnapshot
+    from data_type_primitives.candle import CandleData
+    from data_type_primitives.order_book import OrderBookSnapshot
 
 
 class LiveMarketData:
@@ -49,9 +49,9 @@ class LiveMarketData:
 
         Retrieves the live order book from the bound connector and converts
         the top-of-book entries into ``OrderBookEntry`` / ``OrderBookSnapshot``
-        primitives defined by ``hb-strategy-framework``.
+        primitives defined by ``hb-data-type-primitives``.
         """
-        from strategy_framework.primitives.order_book import OrderBookEntry, OrderBookSnapshot
+        from data_type_primitives.order_book import OrderBookEntry, OrderBookSnapshot
 
         order_book = self._provider.get_order_book(self._connector_name, trading_pair)
         bids_df, asks_df = order_book.snapshot
@@ -80,7 +80,7 @@ class LiveMarketData:
         ``volume``.  ``timestamp`` is in seconds (float/int); ``CandleData``
         stores Unix milliseconds.
         """
-        from strategy_framework.primitives.candle import CandleData
+        from data_type_primitives.candle import CandleData
 
         df = self._provider.get_candles_df(self._connector_name, trading_pair, interval, limit)
 
