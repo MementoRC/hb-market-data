@@ -13,8 +13,8 @@ htmlcov/
 .coverage
 .coverage.*
 *.log
+# Pixi (pixi.lock is committed: CI installs --locked and check-conda-first gates it)
 .pixi/
-pixi.lock
 .env
 .venv/
 logs/
