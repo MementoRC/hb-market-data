@@ -125,7 +125,9 @@ show_missing = true
 skip_covered = true
 exclude_lines = ["no cov", "if __name__", "if TYPE_CHECKING", "raise NotImplementedError", "@overload"]
 
+# Scope: only the order-book / price snapshot surface of MarketDataProvider, not all of
+# hummingbot.data_feed.
 [tool.hummingbot.supersedes]
-module = "hummingbot.data_feed"
+module = "hummingbot.data_feed.market_data_provider"
 import_path = "market_data"
 test_paths = []
